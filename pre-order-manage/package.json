@@ -1,0 +1,38 @@
+{
+  "name": "ui-manage-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "build": "webpack -p --config webpack.prod.js --progress",
+    "build:dev": "webpack --watch",
+    "clean": "rimraf build",
+    "watch": "nodemon ./build/index.js --watch",
+    "start": "yarn run build:dev",
+    "start:production": "yarn run clean && yarn run build"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "compression": "^1.7.3",
+    "cors": "^2.8.4",
+    "dotenv-webpack": "^1.5.7",
+    "express": "^4.16.4",
+    "helmet": "^3.15.0",
+    "morgan": "^1.9.1",
+    "path": "^0.12.7",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "babel-loader": "^8.0.4",
+    "nodemon": "^1.18.9",
+    "nodemon-webpack-plugin": "^4.0.7",
+    "rimraf": "^2.6.2",
+    "webpack": "^4.23.1",
+    "webpack-cli": "^3.1.2"
+  }
+}

@@ -1,0 +1,31 @@
+# Stage 1 - the build process
+FROM node:alpine as builder
+
+RUN mkdir -p /usr/src/builder
+
+WORKDIR /usr/src/builder
+
+ARG PORT
+
+ENV PORT=$PORT
+
+COPY . .
+
+RUN yarn install
+RUN yarn run build
+RUN rm -rf node_modules
+
+
+# Stage 2 - the production environment
+FROM keymetrics/pm2:latest-alpine
+LABEL author="Ohm Piromrak"
+
+RUN mkdir -p /usr/src/app
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/builder/build .
+
+EXPOSE 80
+
+CMD ["pm2-runtime", "start", "index.js"]

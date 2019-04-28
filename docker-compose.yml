@@ -1,0 +1,194 @@
+version: '3.5'
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - '80:80'
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - frontend
+      - api-gateway
+
+  pre-order-food:
+    build: ./server/pre-order-food
+    container_name: pre-order-food
+    expose:
+      - 80
+    restart: always
+    environment:
+      - VIRTUAL_HOST=food.ohmpiromrak.com
+      - VIRTUAL_PROTO=http
+    networks:
+      - frontend
+
+  pre-order-manage:
+    build:
+      context: ./server/pre-order-manage
+      dockerfile: Dockerfile
+    container_name: pre-order-manage
+    expose:
+      - 80
+    restart: always
+    environment:
+      - VIRTUAL_HOST=food-manage.ohmpiromrak.com
+      - VIRTUAL_PROTO=http
+    networks:
+      - frontend
+
+  api-gateway:
+    build:
+      context: ./server/api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    expose:
+      - 80
+    restart: always
+    environment:
+      - VIRTUAL_HOST=food-api.ohmpiromrak.com
+      - VIRTUAL_PROTO=http
+    networks:
+      - api-gateway
+
+  auth-db:
+    container_name: auth-db
+    image: mongo:latest
+    restart: always
+    volumes:
+      - ./auth-database:/data
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: fastorder
+    networks:
+      - api-gateway
+
+  auth-service:
+    build:
+      context: ./server/AuthenticationService
+      dockerfile: Dockerfile
+    container_name: auth-service
+    expose:
+      - 3000
+    ports:
+      - '3000:3000'
+    restart: always
+    depends_on:
+      - auth-db
+    networks:
+      - api-gateway
+
+  community-db:
+    container_name: community-db
+    image: mongo:latest
+    restart: always
+    volumes:
+      - ./community-db:/data
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: fastorder
+    networks:
+      - api-gateway
+
+  community-service:
+    build:
+      context: ./server/community-service
+      dockerfile: Dockerfile
+    container_name: community-service
+    expose:
+      - 3001
+    ports:
+      - '3001:3001'
+    restart: always
+    depends_on:
+      - community-db
+    networks:
+      - api-gateway
+
+  product-db:
+    container_name: product-db
+    image: mongo:latest
+    restart: always
+    volumes:
+      - ./product-db:/data
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: fastorder
+    networks:
+      - api-gateway
+
+  product-service:
+    build:
+      context: ./server/product-service
+      dockerfile: Dockerfile
+    container_name: product-service
+    expose:
+      - 3003
+    ports:
+      - '3003:3003'
+    restart: always
+    depends_on:
+      - product-db
+    networks:
+      - api-gateway
+
+  order-db:
+    container_name: order-db
+    image: mongo:latest
+    restart: always
+    volumes:
+      - ./order-db:/data
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: fastorder
+    networks:
+      - api-gateway
+
+  order-service:
+    build:
+      context: ./server/order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    expose:
+      - 3004
+    ports:
+      - '3004:3004'
+    restart: always
+    depends_on:
+      - api-gateway
+    networks:
+      - api-gateway
+
+  storage-db:
+    container_name: storage-db
+    image: mongo:latest
+    restart: always
+    volumes:
+      - ./storage-db:/data
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: fastorder
+    networks:
+      - api-gateway
+
+  storage-service:
+    build:
+      context: ./server/storage-service
+      dockerfile: Dockerfile
+    container_name: storage-service
+    volumes:
+      - ./server/storage-service/community:/community
+    expose:
+      - 3002
+    ports:
+      - '3002:3002'
+    restart: always
+    depends_on:
+      - storage-db
+    networks:
+      - api-gateway
+
+networks:
+  api-gateway:
+    name: api-gateway
+  frontend:
+    name: frontend
