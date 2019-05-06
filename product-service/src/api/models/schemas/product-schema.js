@@ -7,6 +7,7 @@ const ProductSchema = mongoose.Schema({
   imagesUrl: { type: Array },
   creationTime: { type: String },
   lastUpdateTime: { type: String },
+  isActive: { type: Boolean },
 });
 
 export default mongoose.model('products', ProductSchema);

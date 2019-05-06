@@ -26,9 +26,30 @@ function getGroupById(groupId) {
     });
 }
 
+function getOwnerGroupIdArray(userId) {
+  return axios({
+    url: `${process.env.COMMU_SERVICE_URI}/owner/groupId`,
+    method: 'post',
+    headers: { 'Content-Type': 'application/json' },
+    data: {
+      userId,
+    },
+  }).then(res => res.data);
+}
+
 function genSlug(id, title) {
   title.toLowerCase();
   return title.replace(/\s/g, '-') + `-${id}`;
+}
+
+function removeOrders(preOrderId) {
+  console.log(preOrderId);
+  console.log(process.env.ORDER_SERVICE_URI);
+  return axios({
+    url: `${process.env.ORDER_SERVICE_URI}/preorder/${preOrderId}`,
+    method: 'delete',
+    headers: { 'Content-Type': 'application/json' },
+  }).then(res => res.data);
 }
 
 class PreOrderScheduleModel {
@@ -77,6 +98,33 @@ class PreOrderScheduleModel {
     return { success: true };
   }
 
+  getAllPreordersInMyGroup(userId) {
+    return getOwnerGroupIdArray(userId).then(res => {
+      return Preorder.find({
+        groupId: {
+          $in: [...res],
+        },
+      })
+        .where('orderTime.end')
+        .gte(moment().format())
+        .select(sql)
+        .then(async res => {
+          let preorders = [];
+          try {
+            for (const i of res) {
+              const group = await getGroupById(i.groupId);
+              const product = await Product.getProductByProductId(i.productId);
+              preorders = [...preorders, { group, ...i._doc, product }];
+            }
+          } catch (e) {
+            console.log(e);
+          }
+
+          return { result: preorders };
+        });
+    });
+  }
+
   getAllPreOrders() {
     return Preorder.find()
       .where('orderTime.end')
@@ -89,7 +137,6 @@ class PreOrderScheduleModel {
             const group = await getGroupById(i.groupId);
             const product = await Product.getProductByProductId(i.productId);
             preorders = [...preorders, { group, ...i._doc, product }];
-            console.log(res);
           }
         } catch (e) {
           console.log(e);
@@ -218,6 +265,11 @@ class PreOrderScheduleModel {
    * @param {string} id - Pre-order ID
    */
   removePreOrder(id) {
+    removeOrders(id)
+      .then(res => console.log(res))
+      .catch(err => {
+        console.log(err);
+      });
     return Preorder.findByIdAndDelete(id);
   }
 }

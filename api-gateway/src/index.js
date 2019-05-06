@@ -81,6 +81,8 @@ app.get('/auth/search', authRoute);
 // community service routes
 app.get('/communities', commuRoute);
 app.post('/communities', auth.allow(['admin']), commuRoute);
+app.get('/communities/owner', auth.allow(), commuRoute);
+app.post('/communities/owner/groupId', commuRoute);
 app.get('/communities/:id', commuRoute);
 app.put('/communities/:id', auth.allow(['admin']), commuRoute);
 app.delete('/communities/:id', auth.allow(['admin']), commuRoute);
@@ -108,6 +110,7 @@ app.post('/products/:groupId', auth.allow(), productRoute);
 
 app.get('/preorders', productRoute);
 app.get('/preorders/all', productRoute);
+app.get('/preorders/my-group', auth.allow(), productRoute);
 app.post('/preorders', productRoute);
 app.get('/preorders/owner', productRoute);
 app.get('/preorders/:preorderId', productRoute);
@@ -119,6 +122,7 @@ app.get('/orders/owner', auth.allow(), orderRoute);
 app.post('/orders', orderRoute);
 app.patch('/orders/owner/:orderId', auth.allow(), orderRoute); // cancel order
 app.patch('/orders/:orderId', auth.allow(), orderRoute); // update status
+app.delete('/orders/preorder/:preorderId', orderRoute);
 
 /////////////////////
 app.get('/orders/products/:productId', orderRoute);

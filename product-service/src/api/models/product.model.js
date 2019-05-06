@@ -31,7 +31,7 @@ class ProductModel {
   }
 
   getProductsByOwnerId(ownerId) {
-    return Product.find({ ownerId })
+    return Product.find({ ownerId, isActive: true })
       .select(
         `title description
              imagesUrl 
@@ -64,7 +64,7 @@ class ProductModel {
   //         );
 
   getProducts({ start = 0, limit = 100 }, ownerId) {
-    return Product.find({ ownerId })
+    return Product.find({ ownerId, isActive: true })
       .skip(parseInt(start))
       .limit(parseInt(start))
       .select(
@@ -79,6 +79,7 @@ class ProductModel {
       ...payload,
       lastUpdateTime: moment().format(),
       creationTime: moment().format(),
+      isActive: true,
     };
 
     return Product.create(prepare).then(res => {
@@ -89,7 +90,7 @@ class ProductModel {
 
   updateProduct(productId, payload) {
     return Product.findOneAndUpdate(
-      { _id: productId },
+      { _id: productId, isActive: true },
       { ...payload },
       { new: true }
     ).select(
@@ -120,7 +121,7 @@ class ProductModel {
   }
 
   removeProduct(productId) {
-    return Product.findOneAndDelete({ _id: productId });
+    return Product.findOneAndUpdate({ _id: productId }, { isActive: false });
   }
 }
 

@@ -20,6 +20,7 @@ router
   );
 
 router.get('/all', Preorder.getAllPreOrders);
+router.get('/my-group', Preorder.getAllPreordersInMyGroup);
 
 router.route('/owner').get(Preorder.getPreOrdersByOwner);
 

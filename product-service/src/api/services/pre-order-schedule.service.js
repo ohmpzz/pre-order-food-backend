@@ -4,7 +4,7 @@ export class PreOrderScheduleModel {
   async createPreOrder(req, res) {
     const payload = req.body;
     try {
-      const preorder = Preorder.createPreOrder(payload);
+      const preorder = await Preorder.createPreOrder(payload);
       return res.status(201).json(preorder);
     } catch (err) {
       console.log(err);
@@ -18,6 +18,16 @@ export class PreOrderScheduleModel {
       return res.json(preorders);
     } catch (error) {
       console.log(error);
+      return res.status(500).json({ error: 'something went wrong' });
+    }
+  }
+
+  async getAllPreordersInMyGroup(req, res) {
+    const userId = req.user.sub;
+    try {
+      const preorders = await Preorder.getAllPreordersInMyGroup(userId);
+      return res.json(preorders);
+    } catch (error) {
       return res.status(500).json({ error: 'something went wrong' });
     }
   }
@@ -103,7 +113,8 @@ export class PreOrderScheduleModel {
     try {
       const removed = await Preorder.removePreOrder(req.params.preorderId);
       return res.status(200).json({ success: true });
-    } catch {
+    } catch (e) {
+      console.log(e);
       return res.status(500).json({ error: 'something went wrong' });
     }
   }

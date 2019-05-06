@@ -59,7 +59,6 @@ function getUserCredential(usersId = []) {
 
 export class OrderModel {
   getOrderByPreOrderId(preOrderId) {
-    console.log(preOrderId);
     return Order.find({ preOrderId })
       .select(sql)
       .then(async res => {
@@ -109,7 +108,10 @@ export class OrderModel {
   }
 
   cancelOrderByOwner(orderId, isCanceled) {
-    return Order.findOneAndUpdate({ _id: orderId }, { isCanceled });
+    return Order.findOneAndUpdate(
+      { _id: orderId },
+      { isCanceled, status: 'ยกเลิกออเดอร์' }
+    );
   }
 
   updateStatusOrder(orderId, status) {
@@ -118,6 +120,11 @@ export class OrderModel {
 
   getOrdersByProductId(productId) {
     return Order.find({ 'product._id': productId }).select(sql);
+  }
+
+  deleteOrderByPreOrderId(preOrderId) {
+    console.log(preOrderId);
+    return Order.findOneAndDelete({ preOrderId });
   }
 
   getOrdersByOwnerId(ownerId) {

@@ -32,6 +32,27 @@ function getMemberCredential(usersId = []) {
 const sqlAllAttr = `title description slug pictureUrl members creationTime lastUpdateTime updateBy_name updateBy_id`;
 
 class CommunityModel {
+  getAllOwnerCommunities(userId) {
+    const condition = `members.${userId}`;
+    return Commu.find({ [condition]: /\w+/gi })
+      .select(sqlAllAttr)
+      .then(async res => {
+        let communities = [];
+
+        for (const g of res) {
+          const membersId = Object.keys(g.members);
+
+          try {
+            const members = await getMemberCredential(membersId);
+            communities = [...communities, { ...g._doc, members }];
+          } catch (error) {
+            console.log('error::', error);
+          }
+        }
+        return communities;
+      });
+  }
+
   getAllCommunities() {
     return Commu.find()
       .select(sqlAllAttr)
@@ -85,6 +106,7 @@ class CommunityModel {
     });
   }
 
+  // todo เปลี่ยนเป็นใส่ [id]: [role] - admin, user
   async updateMembers(id, member) {
     if (!id && !member) {
       return new Promise.reject(false);
@@ -93,7 +115,7 @@ class CommunityModel {
       const { members } = await Commu.findById(id)
         .select('members')
         .then(payload => payload._doc);
-      const newMembers = { ...members, [member.userId]: member.name };
+      const newMembers = { ...members, [member.userId]: member.role };
       return Commu.findOneAndUpdate(
         { _id: id },
         { members: newMembers },

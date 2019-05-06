@@ -67,6 +67,16 @@ class OrderService {
     }
   }
 
+  async deleteOrderByPreOrderId(req, res) {
+    const preOrderId = req.params.preorderId;
+    try {
+      const removed = await Order.deleteOrderByPreOrderId(preOrderId);
+      return res.status(200).json({ success: true });
+    } catch (e) {
+      return res.status(500).json({ error: 'something went wrong' });
+    }
+  }
+
   ////////////////////////////////////
   async getOrderByProductId(req, res, next) {
     const productId = req.params.productId;

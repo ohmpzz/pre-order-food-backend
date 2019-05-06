@@ -20,6 +20,8 @@ router.patch(
   Order.updateOrderStatus
 );
 
+router.delete('/preorder/:preorderId', Order.deleteOrderByPreOrderId);
+
 router.route('/products/:productId').get(Order.getOrderByProductId);
 router.route('/owners/:ownerId').get(Order.getOrderByOwnerId);
 router.route('/users/:userId').get(Order.getOrderByUserId);

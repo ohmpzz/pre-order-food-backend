@@ -12,6 +12,12 @@ router
   .get(fromCommuService.getAllCommunities)
   .post(fromCommuService.createCommunity);
 
+router.get('/owner', fromCommuService.getAllOwnerCommunities);
+router.post(
+  '/owner/groupId',
+  fromCommuService.getAllOwnerCommunitiesGroupIdArray
+);
+
 router
   .route('/:id')
   .get(fromCommuService.getCommunityById)

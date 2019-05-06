@@ -3,6 +3,7 @@ import fromCommuModel from '../models/community.model';
 
 class CommunityService {
   async addMember(req, res) {
+    const role = req.user.roles.hasOwnProperty('admin') ? 'admin' : 'user';
     const id = req.params.groupId;
     try {
       const user = await axios({
@@ -17,6 +18,7 @@ class CommunityService {
       const community = await fromCommuModel.updateMembers(id, {
         userId,
         name: user.name,
+        role,
       });
       return res.status(200).json(community);
     } catch (error) {
@@ -36,6 +38,34 @@ class CommunityService {
       return res.json(community);
     } catch (error) {
       return res.status(500).json({ error });
+    }
+  }
+
+  async getAllOwnerCommunities(req, res) {
+    const userId = req.user.sub;
+    if (!userId) return res.status(401).json({ error: 'Please Sign in' });
+    try {
+      const communities = await fromCommuModel.getAllOwnerCommunities(userId);
+      return res.json(communities);
+    } catch (error) {
+      return res.status(500).json({ error: 'Something went wrong' });
+    }
+  }
+
+  async getAllOwnerCommunitiesGroupIdArray(req, res) {
+    const userId = req.body.userId;
+    if (!userId) return res.status(401).json({ error: 'Please Sign in' });
+    try {
+      const communities = await fromCommuModel
+        .getAllOwnerCommunities(userId)
+        .then(res => {
+          return res.reduce((arr, current) => {
+            return [...arr, current._id];
+          }, []);
+        });
+      return res.json(communities);
+    } catch (error) {
+      return res.status(500).json({ error: 'Something went wrong' });
     }
   }
 

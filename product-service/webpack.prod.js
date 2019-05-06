@@ -20,6 +20,7 @@ let plugins = [
         'http://community-service:3001/communities'
       ),
       PRODUCT_SERVICE_URI: JSON.stringify('http://http://localhost:3003'),
+      ORDER_SERVICE_URI: JSON.stringify('http://order-service:3004/orders'),
     },
   }),
 ];

@@ -2,16 +2,6 @@ import app from '../index';
 
 export const csp = {
   directives: {
-    defaultSrc: [
-      "'self'",
-      'https://*.ohmpiromrak.com',
-      'https://*.ohmpiromrak.com:443',
-      'https://connect.facebook.net',
-      'https://staticxx.facebook.com',
-      'https://www.facebook.com',
-      'https://web.facebook.com',
-      'https://facebook.com',
-    ],
     connectSrc: [
       "'self'",
       'https://*.ohmpiromrak.com',
@@ -53,9 +43,6 @@ export const csp = {
       'https://*.ohmpiromrak.com',
       'https://*.ohmpiromrak.com:443',
     ],
-    formAction: ["'self'"],
-    manifestSrc: ["'self'"],
-    objectSrc: ["'self'", 'https://*.ohmpiromrak.com'],
   },
 };
 
