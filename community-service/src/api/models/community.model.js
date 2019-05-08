@@ -141,13 +141,35 @@ class CommunityModel {
     }
   }
 
-  async updateRemoveMember(id, memberId) {
+  /**
+   *
+   * @param {*} id mongoObjectId
+   * @param {*} memberId mongoObjectId
+   * @param {*} role - admin, user
+   * @param {*} userIdRequest mongoObjectId
+   */
+  async updateRemoveMember(id, memberId, role, userIdRequest) {
+    console.log(role);
+    console.log(userIdRequest);
     try {
-      const { [memberId]: removed, ...newMember } = await Commu.findOne({
+      const groupMembers = await Commu.findOne({
         _id: id,
       })
         .select('members')
         .then(payload => payload._doc.members);
+      console.log(groupMembers);
+      console.log(groupMembers[userIdRequest] != 'admin');
+      console.log(groupMembers && groupMembers[userIdRequest] != 'admin');
+      if (
+        groupMembers &&
+        groupMembers[userIdRequest] != 'admin' &&
+        role != 'admin'
+      ) {
+        console.log('here');
+        return { unsuccess: true };
+      }
+      const { [memberId]: removed, ...newMember } = { ...groupMembers };
+
       return Commu.findOneAndUpdate(
         { _id: id },
         { members: newMember, lastUpdateTime: moment().format() },
@@ -167,7 +189,7 @@ class CommunityModel {
           return communities;
         });
     } catch (error) {
-      return res.status(500).json({ error: 'Something went wrong' });
+      throw error;
     }
   }
 

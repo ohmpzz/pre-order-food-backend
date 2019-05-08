@@ -30,11 +30,21 @@ class CommunityService {
   async removeMember(req, res) {
     const id = req.params.groupId;
     const memberId = req.body.userId;
+    const role = req.user.roles['admin'] ? 'admin' : 'user';
+    const userIdRequest = req.user.sub;
     if (!memberId) {
       return res.status(400).json({ error: 'Require Information' });
     }
     try {
-      const community = await fromCommuModel.updateRemoveMember(id, memberId);
+      const community = await fromCommuModel.updateRemoveMember(
+        id,
+        memberId,
+        role,
+        userIdRequest
+      );
+      if (community && community.unsuccess) {
+        return res.status(401).json({ error: 'No permission' });
+      }
       return res.json(community);
     } catch (error) {
       return res.status(500).json({ error });
